@@ -13,6 +13,15 @@ class CarsController {
         }
     }
 
+    getQuoteCar(brand, year, hasAC) {
+        return [
+            getCarQuote(brand, year, hasAC, 'RC'),
+            getCarQuote(brand, year, hasAC, 'Low'),
+            getCarQuote(brand, year, hasAC, 'Mid'),
+            getCarQuote(brand, year, hasAC, 'High'),
+        ]
+    }
+
 }
 
 const getBestOption = (year, coverageType) => {
@@ -32,10 +41,7 @@ const getBestOption = (year, coverageType) => {
         let lowestPrice = 0;
         let currentQuote = parseFloat(q.price.replace(",", ""));
 
-        if (lowestPrice === 0) {
-            lowestPrice = currentQuote;
-            lowestQuote = q;
-        } else if(currentQuote < lowestPrice) {
+        if(currentQuote < lowestPrice || lowestPrice === 0) {
             lowestPrice = currentQuote;
             lowestQuote = q;
         }
@@ -69,6 +75,47 @@ const isValidCarRange = (quoteYearRange, year) => {
         return true;
     } else {
         return false;
+    }
+}
+
+const getCarQuote = (brand, year, hasAC, coverageType) => {
+    const carsDb = new DbCars();
+    const quotes = carsDb.getCarsQuotes();
+    let validQuotes = [];
+    for (const quote of quotes) {
+        // Validate car brand, car year range
+        if (isEqualBrand(quote, brand) && isValidCarRange(quote.yearRange, year) && quote.coverageType === coverageType) {
+            validQuotes.push(quote);
+        }
+    }
+
+    let lowestQuote = {};
+
+    for (const q of validQuotes) {
+        let lowestPrice = 0;
+        if (hasAC) {
+            let sum = parseFloat(q.price.replace(",", "")) + parseFloat(q.extraCoveragePrice.replace(",", ""));
+            if(sum < lowestPrice || lowestPrice === 0) {
+                lowestPrice = sum;
+                lowestQuote = q;
+            }
+        } else {
+            let currentQuote = parseFloat(q.price.replace(",", ""));
+            if(currentQuote < lowestPrice || lowestPrice === 0) {
+                lowestPrice = currentQuote;
+                lowestQuote = q;
+            }
+        }
+    }
+    
+    return lowestQuote;
+}
+
+const isEqualBrand = (quote, brand) => {
+    if (quote.brand.toLowerCase() === brand.toLowerCase()) {
+        return true
+    } else {
+        return false
     }
 }
 
