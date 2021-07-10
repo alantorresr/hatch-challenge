@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
+const CarsController = require('../../controllers/cars');
 
 router.get('/bestOptionsPerYear/:year', (req, res) => {
     try {
-        
+        const { year } = req.params;
+        let carsController = new CarsController();
+        res.json(carsController.getBestOptionPerYear(parseInt(year)));
     } catch (error) {
         console.error(`[Error: ${error.message}]`);
         if (error && error.statusCode) {
@@ -16,7 +19,6 @@ router.get('/bestOptionsPerYear/:year', (req, res) => {
 
 router.post('/quoteCar', (req, res) => {
     try {
-        
     } catch (error) {
         console.error(`[Error: ${error.message}]`);
         if (error && error.statusCode) {
