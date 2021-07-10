@@ -19,7 +19,9 @@ router.get('/bestOptionsPerYear/:year', (req, res) => {
 
 router.post('/quoteCar', (req, res) => {
     try {
-        const { brand, year, hasAC } = req.params;
+        const { brand, year, hasAC } = req.body;
+        let carsController = new CarsController();
+        res.json(carsController.getQuoteCar(brand, year, hasAC));
     } catch (error) {
         console.error(`[Error: ${error.message}]`);
         if (error && error.statusCode) {
